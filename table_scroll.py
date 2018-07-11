@@ -211,7 +211,7 @@ class Data_Cell(Cell):
     def __init__(self, master, variable, anchor=W, bordercolor=None, borderwidth=1, padx=0, pady=0, background=None, foreground=None, font=None):
         Cell.__init__(self, master, background=background, highlightbackground=bordercolor, highlightcolor=bordercolor, highlightthickness=borderwidth, bd= 0)
 
-        self._message_widget = Message(self, textvariable=variable, font=font, background=background, foreground=foreground)
+        self._message_widget = Message(self, textvariable=variable, font=font, background=background, foreground=foreground,width = 500)
         self._message_widget.pack(expand=True, padx=padx, pady=pady, anchor=anchor)
 
 class Header_Cell(Cell):
@@ -362,8 +362,8 @@ class Table(Frame):
         self._number_of_rows -= n
 
     def set_data(self, data):
-        n = len(data)
-        m = len(data[0])
+        n = len(data) #number of rows
+        m = len(data[0]) #number of columns
 
         number_of_rows = self._number_of_rows
 
@@ -385,7 +385,7 @@ class Table(Frame):
         data = []
         for i in range(number_of_rows):
             row = []
-            row_of_vars = self._data_vars[i]
+            row_of_vars = self._data_vars[i] ###
             for j in range(number_of_columns):
                 cell_data = row_of_vars[j].get()
                 row.append(cell_data)
