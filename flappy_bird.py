@@ -3,6 +3,7 @@ import time
 import random
 import table_scroll
 
+#make border work
 
 root = tk.Tk()
 root.attributes("-fullscreen", True)
@@ -110,15 +111,15 @@ class Generations(tk.Frame):
         
 
         ####
-        height = ((len(table_data)*39.25)+20)
+        height = ((len(table_data)*39.25)+25)
         if height > 550:
             height = 550
         print(height)
         self.Boarder = tk.Label(self,image = photo,bg="black",width= 300+35,height=height)
-        self.Boarder.place(y=140,x=940)
+        self.Boarder.place(y=140,x=890)
         
         table = table_scroll.Table(root, ["Name", "Fitness"], column_minwidths=[150, 150],height = 500)
-        table.place(y=150,x=950)
+        table.place(y=150,x=900)
         #array = [[13,13],[123,31]]
         table.set_data(table_data)
 
