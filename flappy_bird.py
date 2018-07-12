@@ -51,7 +51,7 @@ class Options(tk.Frame):
         tk.Frame.__init__(self,main,bg="thistle1")
 
 
-        self.Label1 = tk.Label(self,text="Population Size:",bg = "thistle1",font=("Helvetica", 15))
+        self.Label1 = tk.Label(self,text="Population Size:     (This must be even)",bg = "thistle1",font=("Helvetica", 15))
         self.Label1.place(rely = 0.35,relx= .43)
         
         self.Entry1 = tk.Entry(self,font=("Helvetica", 15))
@@ -101,23 +101,24 @@ class Generations(tk.Frame):
         ###DONT CALL FUNCTION EVEYR TIME GET A VARIABVEL
         self.b.place(x =root.winfo_screenwidth()-55,y = 0)
 
-        """
-        self.b = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "red",height = 50,width = 50,
-        activebackground = 'firebrick3',font=("Helvetica", 15),text="X",compound= tk.CENTER)
-        self.b.place(x =root.winfo_screenwidth()-55,y = 0)
-
-        self.b = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "red",height = 50,width = 50,
-        activebackground = 'firebrick3',font=("Helvetica", 15),text="X",compound= tk.CENTER)
-        self.b.place(x =root.winfo_screenwidth()-55,y = 0)
         
-        self.b = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "red",height = 50,width = 50,
-        activebackground = 'firebrick3',font=("Helvetica", 15),text="X",compound= tk.CENTER)
-        self.b.place(x =root.winfo_screenwidth()-55,y = 0)
+        self.history_button = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "dark violet",height = 100,width = 360,
+        activebackground = 'dark violet',font=("Helvetica", 25),text="History",compound= tk.CENTER)
+        self.history_button.place(x = 60,y = 140)
 
-        self.b = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "red",height = 50,width = 50,
-        activebackground = 'firebrick3',font=("Helvetica", 15),text="X",compound= tk.CENTER)
-        self.b.place(x =root.winfo_screenwidth()-55,y = 0)
-        """
+        self.step_by_step_button = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "dark violet",height = 100,width = 360,
+        activebackground = 'dark violet',font=("Helvetica", 25),text="Step-By-Step Generation",compound= tk.CENTER)
+        self.step_by_step_button.place(x = 480,y = 140)
+        
+        self.multi_step_button = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "dark violet",height = 100,width = 360,
+        activebackground = 'dark violet',font=("Helvetica", 25),text="Multi-Step Generation",compound= tk.CENTER)
+        self.multi_step_button.place(x = 60,y = 440)
+        
+        self.quick_generation_button = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "dark violet",height = 100,width = 360,
+        activebackground = 'dark violet',font=("Helvetica", 25),text="Quick Generation",compound= tk.CENTER)
+        self.quick_generation_button.place(x = 480,y = 440)
+
+        
 
         
         self._max_gen = Generations
@@ -128,12 +129,12 @@ class Generations(tk.Frame):
         mean = statistics.mean(mean_calc)
 
         ####
-        height = ((len(table_data)*31)+44+20)
+        height = ((len(table_data)*34)+44+15)
         if height > 550:
             height = 550
 
 
-        print("mean",mean)
+        #print("mean",mean)
         #heading size = 31 + 3
         
         #height = 31
@@ -141,16 +142,16 @@ class Generations(tk.Frame):
 
 
 
-        self.Boarder = tk.Label(self,image = photo,bg="black",width= 300+35,height=height)
-        self.Boarder.place(y=140,x=890)
+        self.Border = tk.Label(self,image = photo,bg="black",width= 300+35,height=height)
+        self.Border.place(y=140,x=890)
         
         table = table_scroll.Table(root, ["Name", "Fitness"], column_minwidths=[150, 150],height = 500)
         table.place(y=150,x=900)
         #array = [[13,13],[123,31]]
         table.set_data(table_data)
 
-        self.mean_label = tk.Label(self,text = "Mean: "+str(round(mean,2)),font=("Helvetica", 15),image = photo,width = 300,height = 100,compound= tk.CENTER,bg="thistle1")#,bg="thistle1"
-        self.mean_label.place(y=140,x=540)        
+        self.mean_label = tk.Label(self,text = "Mean Fitness: "+str(round(mean,2)),font=("Helvetica", 14),image = photo,width = 300,height = 100,compound= tk.CENTER,bg="thistle1")#,bg="thistle1"
+        self.mean_label.place(y=20,x=900)        
 
 
 
@@ -623,7 +624,6 @@ class pipe():
 
             
         self.pipeimage = c.create_rectangle(self.x,0,self.x+50,self.gapstart,fill = "black") #4 corners
-        print("REST")
         self.pipeimage2 = c.create_rectangle(self.x,self.gapstart+self.gap,self.x+50,self.gapstart+self.gap+ 700,fill = "black")
     def update(self):
         c.move(self.pipeimage,-self.x,-self.y)
