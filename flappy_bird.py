@@ -2,7 +2,7 @@ import tkinter as tk
 import time
 import random
 import table_scroll
-
+import statistics
 #make border work
 
 root = tk.Tk()
@@ -101,20 +101,46 @@ class Generations(tk.Frame):
         ###DONT CALL FUNCTION EVEYR TIME GET A VARIABVEL
         self.b.place(x =root.winfo_screenwidth()-55,y = 0)
 
+        """
+        self.b = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "red",height = 50,width = 50,
+        activebackground = 'firebrick3',font=("Helvetica", 15),text="X",compound= tk.CENTER)
+        self.b.place(x =root.winfo_screenwidth()-55,y = 0)
+
+        self.b = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "red",height = 50,width = 50,
+        activebackground = 'firebrick3',font=("Helvetica", 15),text="X",compound= tk.CENTER)
+        self.b.place(x =root.winfo_screenwidth()-55,y = 0)
+        
+        self.b = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "red",height = 50,width = 50,
+        activebackground = 'firebrick3',font=("Helvetica", 15),text="X",compound= tk.CENTER)
+        self.b.place(x =root.winfo_screenwidth()-55,y = 0)
+
+        self.b = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "red",height = 50,width = 50,
+        activebackground = 'firebrick3',font=("Helvetica", 15),text="X",compound= tk.CENTER)
+        self.b.place(x =root.winfo_screenwidth()-55,y = 0)
+        """
 
         
         self._max_gen = Generations
         self.Label1 = tk.Label(self,text = "Generation: "+str(self._max_gen),font=("Helvetica", 30),bg = "thistle1")
         self.Label1.place(rely = 0.05,relx= 0.40)
 
-        table_data = playgame(root,c,size,mutation)
-        
+        table_data,mean_calc = playgame(root,c,size,mutation)
+        mean = statistics.mean(mean_calc)
 
         ####
-        height = ((len(table_data)*39.25)+25)
+        height = ((len(table_data)*31)+44+20)
         if height > 550:
             height = 550
-        print(height)
+
+
+        print("mean",mean)
+        #heading size = 31 + 3
+        
+        #height = 31
+        #print(height)
+
+
+
         self.Boarder = tk.Label(self,image = photo,bg="black",width= 300+35,height=height)
         self.Boarder.place(y=140,x=890)
         
@@ -123,7 +149,8 @@ class Generations(tk.Frame):
         #array = [[13,13],[123,31]]
         table.set_data(table_data)
 
-        
+        self.mean_label = tk.Label(self,text = "Mean: "+str(round(mean,2)),font=("Helvetica", 15),image = photo,width = 300,height = 100,compound= tk.CENTER,bg="thistle1")#,bg="thistle1"
+        self.mean_label.place(y=140,x=540)        
 
 
 
@@ -958,17 +985,21 @@ def playgame(root,c,size,mutation):
       
     #root.mainloop()
     count = 0
-    population.sort(key=lambda x: x.fitness, reverse=False)
+    population.sort(key=lambda x: x.fitness, reverse=True)
     table_data = []
+
+    mean_calc = []
+    
     for i in population:
         if count > len(colors)-1:
             count = 0
         #print("Fitness of ",i.color,":",i.fitness)
         table_data.append([i.play.color,i.fitness])
+        mean_calc.append(i.fitness)
         count += 1
     print("Fitness of human :",play.fitness)
     c.destroy()
-    return table_data
+    return table_data,mean_calc
 
 
 
