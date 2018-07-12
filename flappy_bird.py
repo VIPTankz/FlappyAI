@@ -3,6 +3,7 @@ import time
 import random
 import table_scroll
 import statistics
+import copy
 #make border work
 
 root = tk.Tk()
@@ -43,6 +44,7 @@ class menu(tk.Frame):
         #self.destroy()
         playgame(root,c,0,0)
         self.pack(expand="yes",fill="both")
+        
     def create(self,root):
         self.pack_forget()
         options = Options(root)
@@ -105,23 +107,21 @@ class Generations(tk.Frame):
         ###DONT CALL FUNCTION EVEYR TIME GET A VARIABVEL
         self.b.place(x =root.winfo_screenwidth()-55,y = 0)
 
+        table_data,mean_calc, population = playgame(root,c,size,mutation) ####
+        mean = statistics.mean(mean_calc)
+
         
         self.history_button = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "dark violet",height = 100,width = 360,
         activebackground = 'dark violet',font=("Helvetica", 25),text="History",compound= tk.CENTER)
-        self.history_button.place(x = 60,y = 140)
-
-        self.step_by_step_button = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "dark violet",height = 100,width = 360,
-        activebackground = 'dark violet',font=("Helvetica", 25),text="Step-By-Step Generation",compound= tk.CENTER)
-        self.step_by_step_button.place(x = 480,y = 140)
+        self.history_button.place(x = 270,y = 240)
         
-        self.multi_step_button = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "dark violet",height = 100,width = 360,
+        self.multi_step_button = tk.Button(self,  image = photo,command = lambda root=root:self.advance_generation(c,root,population,main),bg = "dark violet",height = 100,width = 360,
         activebackground = 'dark violet',font=("Helvetica", 25),text="Multi-Step Generation",compound= tk.CENTER)
         self.multi_step_button.place(x = 60,y = 440)
         
         self.quick_generation_button = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "dark violet",height = 100,width = 360,
         activebackground = 'dark violet',font=("Helvetica", 25),text="Quick Generation",compound= tk.CENTER)
         self.quick_generation_button.place(x = 480,y = 440)
-
         
 
         
@@ -129,8 +129,6 @@ class Generations(tk.Frame):
         self.Label1 = tk.Label(self,text = "Generation: "+str(self._max_gen),font=("Helvetica", 30),bg = "thistle1")
         self.Label1.place(rely = 0.05,relx= 0.40)
 
-        table_data,mean_calc = playgame(root,c,size,mutation)
-        mean = statistics.mean(mean_calc)
 
         ####
         height = ((len(table_data)*34)+44+15)
@@ -149,10 +147,10 @@ class Generations(tk.Frame):
         self.Border = tk.Label(self,image = photo,bg="black",width= 300+35,height=height)
         self.Border.place(y=140,x=890)
         
-        table = table_scroll.Table(root, ["Name", "Fitness"], column_minwidths=[150, 150],height = 500)
-        table.place(y=150,x=900)
+        self.table = table_scroll.Table(root, ["Name", "Fitness"], column_minwidths=[150, 150],height = 500)
+        self.table.place(y=150,x=900)
         #array = [[13,13],[123,31]]
-        table.set_data(table_data)
+        self.table.set_data(table_data)
 
         self.mean_label = tk.Label(self,text = "Mean Fitness: "+str(round(mean,2)),font=("Helvetica", 14),image = photo,width = 300,height = 100,compound= tk.CENTER,bg="thistle1")#,bg="thistle1"
         self.mean_label.place(y=20,x=900)        
@@ -165,6 +163,94 @@ class Generations(tk.Frame):
         
     def leave(self,root):
         root.destroy()
+
+    def advance_generation(self,c,root,population,main):
+        self._max_gen += 1
+        self.table.destroy()
+        tk.Frame.__init__(self,main,bg="thistle1")
+
+        photo = tk.PhotoImage("")
+
+        self.b = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "red",height = 50,width = 50,
+        activebackground = 'firebrick3',font=("Helvetica", 15),text="X",compound= tk.CENTER)
+        ###DONT CALL FUNCTION EVEYR TIME GET A VARIABVEL
+        self.b.place(x =root.winfo_screenwidth()-55,y = 0)
+
+        population = population[0:int(len(population)/2)]
+        for i in range(len(population)):
+            newobj = copy.copy(population[i])
+            newobj.mutate(False)
+            population.append(newobj)
+            #population.mutate(False)
+        """
+        newpopulation = population[:]
+        for i in newpopulation:   
+            i.mutate(False)
+            population.append(i)
+        """
+        
+        #do mutations
+
+
+        
+        self.pack_forget()
+        #self.destroy()
+        table_data,mean_calc, population = playgame(root,c,0,0,population = population) ####
+        mean = statistics.mean(mean_calc)
+    
+
+        
+        self.pack(expand="yes",fill="both")
+
+        
+        self.history_button = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "dark violet",height = 100,width = 360,
+        activebackground = 'dark violet',font=("Helvetica", 25),text="History",compound= tk.CENTER)
+        self.history_button.place(x = 270,y = 240)
+        
+        self.multi_step_button = tk.Button(self,  image = photo,command = lambda root=root:self.advance_generation(c,root,population,main),bg = "dark violet",height = 100,width = 360,
+        activebackground = 'dark violet',font=("Helvetica", 25),text="Multi-Step Generation",compound= tk.CENTER)
+        self.multi_step_button.place(x = 60,y = 440)
+        
+        self.quick_generation_button = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "dark violet",height = 100,width = 360,
+        activebackground = 'dark violet',font=("Helvetica", 25),text="Quick Generation",compound= tk.CENTER)
+        self.quick_generation_button.place(x = 480,y = 440)
+        
+
+        
+        self.Label1 = tk.Label(self,text = "Generation: "+str(self._max_gen),font=("Helvetica", 30),bg = "thistle1")
+        self.Label1.place(rely = 0.05,relx= 0.40)
+
+
+        ####
+        height = ((len(table_data)*34)+44+15)
+        if height > 550:
+            height = 550
+
+
+        #print("mean",mean)
+        #heading size = 31 + 3
+        
+        #height = 31
+        #print(height)
+
+
+
+        self.Border = tk.Label(self,image = photo,bg="black",width= 300+35,height=height)
+        self.Border.place(y=140,x=890)
+        
+        self.table = table_scroll.Table(root, ["Name", "Fitness"], column_minwidths=[150, 150],height = 500)
+        self.table.place(y=150,x=900)
+        #array = [[13,13],[123,31]]
+        self.table.set_data(table_data)
+
+        self.mean_label = tk.Label(self,text = "Mean Fitness: "+str(round(mean,2)),font=("Helvetica", 14),image = photo,width = 300,height = 100,compound= tk.CENTER,bg="thistle1")#,bg="thistle1"
+        self.mean_label.place(y=20,x=900)        
+
+
+
+        ####
+        self.pack(expand="yes",fill="both")
+        root.mainloop()        
         
 
 
@@ -186,6 +272,7 @@ class brain():
         self.fitness = 0
         self.axon_num = 9
         self.node_num = 6
+        self.activation_bias = 0.5
         self.play = player(c)
 
     ##################### tyler - increases the fitness every frame when the game runs
@@ -193,7 +280,7 @@ class brain():
         if self.play.alive:
             self.fitness += 8
 
-    def set_random_values(self):
+    def set_random_values(self,color):
         self.add_node("input",1)
         self.add_node("input",2)
         self.add_node("input",3)
@@ -214,29 +301,47 @@ class brain():
         self.add_axon(3,5,(random.randint(-100,100)/100),True,3)
         self.add_axon(4,5,(random.randint(-100,100)/100),True,4) #the idea here has nothing to do with node id, just used to track axons
 
-    def mutate(self,show):
-        x = random.randint(1,5)
-        if x == 1:
-            if show:
-                print("Change weight")
-            self.mutate_weight()
-        if x == 2:
-            if show:
-                print("enable node")
-            self.mutate_enable()
-        if x == 3:
-            if show:
-                print("disable node")
-            self.mutate_disable()
-        if x == 4:
-            if show:
-                print("Add axon")
-            self.mutate_add_axon(show)
-        if x == 5:
-            if show:
-                print("add node")
-            self.mutate_add_node(show)
+        self.color = color
 
+    def mutate(self,show):
+        for i in range(3):
+            #axon is currently disabled. MUST be fixed asap
+            start = time.time()
+            x = random.randint(1,10)
+            if x == 1 or x == 8:
+                if show:
+                    print("Change weight")
+                self.mutate_weight()
+            elif x == 2 or x == 9:
+                if show:
+                    print("enable node")
+                self.mutate_enable()
+            elif x == 3 or x == 4:
+                if show:
+                    print("disable node")
+                self.mutate_disable()
+            elif x == 4:
+                if show:
+                    print("Add axon")
+                self.mutate_add_axon(show)
+            elif x == 5:
+                if show:
+                    print("add node")
+                self.mutate_add_node(show)
+            elif x == 6 or x == 7:
+                if show:
+                    print("Change Bias")
+                self.mutate_change_bias()
+            end = time.time()
+            if end - start > 1:
+                print(end - start)
+
+            
+
+    def mutate_change_bias(self):
+        self.activation_bias += random.randint(-100,100)/100        
+
+                      
     def mutate_disable(self):
 
         choices = []
@@ -325,7 +430,13 @@ class brain():
         c = self.node_num
         _before_choices = self.nodes[:]
         _before_choices.remove(_before_choices[4]) #creates a list with everything except the output as this cannot be before a node
-        _before_choices.pop()
+        _before_choices = _before_choices[:-1]
+        stored = []
+        for i in _before_choices:
+            if i._id in stored:
+                _before_choices.remove(i)
+            else:
+                stored.append(i._id)
 
         weight = random.randint(-100,100)/100
         temp_choice = random.choice(_before_choices)
@@ -352,10 +463,14 @@ class brain():
             
             if self.node_num != j._id:# and self.check_all_parents(self.node_num):
                 check =True
+                """
                 for i in self.nodes:
                     q =self.check_all_parents(i._id)
                     if not q:
-                        check = False
+                        check = False"""
+                q =self.check_all_parents(self.node_num)
+                if not q:
+                    check = False                
                 if check:
                     if show:
                         print("(axon after new nodes) Added axon with nodes",self.node_num,"to",j._id)
@@ -448,7 +563,7 @@ class brain():
                         
                         c._evaluated = True
         
-        return val
+        return self.activation(val)#return val
                         
                                     
     def find_axon(self,_in,_out):
@@ -460,7 +575,7 @@ class brain():
                 
                         
     def activation(self,_input):
-        if _input > .5:
+        if _input > self.activation_bias:
             return 1
         return 0
     
@@ -575,17 +690,22 @@ class player():
             if self.control == "human":
                 self.fitness += 8
             self.c.move(self.playerimage,-self.x,-self.y)
-            self.y += (self.vel + self.acc * 0.5)
+            self.y += (self.vel)
 
             #if self.vel < -2 or self.acc > 0:
             self.vel -= self.acc
 
-            if self.vel > 15:
-                self.vel = 15
+            if self.vel > 8:
+                self.vel = 8
+
+            if self.vel < -6:
+                self.vel = -6
+                
             self.c.move(self.playerimage,self.x,self.y)
+
             
             #gravity
-            if self.acc > -1.5:
+            if self.acc > -2.5:
                 self.acc -= 0.05
                 
             if self.cooldown != 0:
@@ -598,9 +718,8 @@ class player():
             
     def jump(self):
         if self.cooldown == 0:
-            self.acc = .8
+            self.acc = 1.3
             #if self.vel < 1:
-            self.vel = 0
             self.cooldown = 6
 
     def check(self,pipelist):
@@ -883,8 +1002,9 @@ def create_population(size,mutation,colors,c):
             count = 0
         #print(colors[count],count)
         pop.append(brain(c))
-        pop[i].set_random_values()
-        pop[i].play.color_change(c,colors[count])  #canvas, color
+        pop[i].set_random_values(colors[count])
+        
+        pop[i].play.color_change(c,pop[i].color)  #canvas, color
 
         for j in range(mutation):
             pop[i].mutate(False)
@@ -903,7 +1023,7 @@ def create_population(size,mutation,colors,c):
 
 
 
-def playgame(root,c,size,mutation):
+def playgame(root,c,size,mutation,population = None):
     #root = tk.Tk()
     root = root
     play = player(c,control = "human")
@@ -911,11 +1031,10 @@ def playgame(root,c,size,mutation):
     #root.attributes("-fullscreen", True)
     #root.focus_force()
     #root.wm_attributes("-topmost", 1)
-    
     c.pack()        
     #play = player(control = "human")
-    pipes = pipe(800,randomness = False)
-    pipes2 = pipe(1400,randomness = False)
+    pipes = pipe(3000,randomness = False) #800
+    pipes2 = pipe(3600,randomness = False) #1400
 
 
 
@@ -925,9 +1044,13 @@ def playgame(root,c,size,mutation):
     #playerimage = c.create_rectangle(play.x,play.y,play.x+50,play.y+50,fill = "black") #4 corners
     clock = c.create_text(1170,50,fill="black",font="Times 30 bold",text="Hi")
     #root.attributes("-fullscreen", True)
-    print("Playgame")
-    population = create_population(size,mutation,colors,c)
-    
+    if population == None:
+        population = create_population(size,mutation,colors,c)
+    else:
+        for i in population:
+            i.fitness = 0
+            i.play = player(c)
+            i.play.color_change(c,i.color) 
     while game: 
         root.update()
         for i in population:
@@ -946,8 +1069,8 @@ def playgame(root,c,size,mutation):
                 top_pipe = i.gapstart
                 bottom_pipe = i.gapstart + i.gap
 
-        for i in population:
-            i.get_inputs(i.play.y,( closest_pipe - i.play.x)/10,top_pipe/100,bottom_pipe/100)
+        for i in population: #i changed this to real normalised input
+            i.get_inputs(i.play.y/720,( closest_pipe - i.play.x)/600,top_pipe/360,bottom_pipe/360)
             
         #brain1.get_inputs(play.y/100,( closest_pipe - play.x)/10,top_pipe/100,bottom_pipe/100) #origianl stuff
         for i in population:
@@ -1002,16 +1125,9 @@ def playgame(root,c,size,mutation):
         count += 1
     print("Fitness of human :",play.fitness)
     
-    if size == 0 and mutation == 0:
-        c.delete("all")
-        c.pack_forget()
-    else:
-        c.destroy()
-    return table_data,mean_calc
-
-
-
-
+    c.delete("all")
+    c.pack_forget()
+    return table_data,mean_calc,population
 
 
 menu = menu(root)
