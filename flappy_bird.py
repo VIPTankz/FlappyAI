@@ -24,7 +24,7 @@ class menu(tk.Frame):
         self.title.place(relx = .44,rely=0.05)
         
         start = tk.Button(self,text = "Play Flappy Bird",bg = "dark violet",font=("Helvetica", 30),
-        activebackground = 'dark violet',command = lambda root=root,c=c: self.playgame(root,c))
+        activebackground = 'dark violet',command = lambda root=root,c=c:self.LaunchGame(root,c))
         start.place(x = 500,y = 225)
 
         start_sim = tk.Button(self,text = "Create Simulation",bg = "dark violet",font=("Helvetica", 30),
@@ -32,14 +32,17 @@ class menu(tk.Frame):
         start_sim.place(x = 485,y = 450)
         
         self.pack(expand="yes",fill="both")
-        
+
+        root.mainloop()
     def leave(self,root):
         root.destroy()
 
-    def playgame(self,root,c):
-        self.pack_forget()
-        playgame(root,c,0,0)
+    def LaunchGame(self,root,c):
 
+        self.pack_forget()
+        #self.destroy()
+        playgame(root,c,0,0)
+        self.pack(expand="yes",fill="both")
     def create(self,root):
         self.pack_forget()
         options = Options(root)
@@ -78,6 +81,7 @@ class Options(tk.Frame):
 
         
         self.pack(expand="yes",fill="both")
+        
         root.mainloop()
     def leave(self,root):
         root.destroy()
@@ -160,10 +164,9 @@ class Generations(tk.Frame):
         root.mainloop()
         
     def leave(self,root):
-        root.destroy()        
-menu = menu(root)
-#menu.place()
-root.update()
+        root.destroy()
+        
+
 
 GEN = []
 
@@ -605,7 +608,7 @@ class player():
             return False
 
         for i in pipelist:  
-            if self.x + 49 > i.x and self.x+ 49 < i.x + 50 and (self.y < i.gapstart or self.y > i.gapstart + i.gap):
+            if self.x + 49 > i.x and self.x+ 49 < i.x + 50 and (self.y < i.gapstart or self.y +50> i.gapstart + i.gap):
                 return False
 
         return True
@@ -615,7 +618,7 @@ class pipe():
     def __init__(self,x,randomness = True):
         self.y = 300
         self.x = x
-        self.gap = 200
+        self.gap = 201
         self.randomness = randomness
         if self.randomness:
             self.gapstart = random.randint(100,500)
@@ -998,7 +1001,12 @@ def playgame(root,c,size,mutation):
         mean_calc.append(i.fitness)
         count += 1
     print("Fitness of human :",play.fitness)
-    c.destroy()
+    
+    if size == 0 and mutation == 0:
+        c.delete("all")
+        c.pack_forget()
+    else:
+        c.destroy()
     return table_data,mean_calc
 
 
@@ -1006,7 +1014,9 @@ def playgame(root,c,size,mutation):
 
 
 
-
+menu = menu(root)
+#menu.place()
+#root.update()
 
 
     
