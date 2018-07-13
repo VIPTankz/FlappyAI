@@ -5,10 +5,13 @@ import table_scroll
 import statistics
 
 
-# fix child node function not being called
-#fix axon mutation
+#add activation per node
+#history tab
+#network viewer
+#save and export
 #add quick gens
 #add alap gens
+#fix child nodes
 
 root = tk.Tk()
 root.attributes("-fullscreen", True)
@@ -199,11 +202,7 @@ class Generations(tk.Frame):
             #population.mutate(False)
         tempory = []
         ####################################################
-        for i in population[0].axons:
-            print("in",i._in,"out",i._out,"weight",i._weight,"status",i._status,"id",i._id)
 
-        for i in population[0].nodes: #child node function
-            print("type",i._type,"id",i._id,"value",i._value,"action",i._action,"child",i._child_nodes,"total parent",i._total_parent_nodes,"evaulated",i._evaluated)
         
 
             
@@ -282,6 +281,14 @@ class Generations(tk.Frame):
         #height = 31
         #print(height)
 
+        print("Generation: "+str(self._max_gen))
+        print("Fitness",population[0].fitness)
+        
+        for i in population[0].axons:
+            print("in",i._in,"out",i._out,"weight",i._weight,"status",i._status,"id",i._id)
+
+        for i in population[0].nodes: #child node function
+            print("type",i._type,"id",i._id,"value",i._value,"action",i._action,"child",i._child_nodes,"total parent",i._total_parent_nodes,"evaulated",i._evaluated)
 
 
         self.Border = tk.Label(self,image = photo,bg="black",width= 300+35,height=height)
@@ -349,17 +356,17 @@ class brain():
         for i in range(1):
             #axon is currently disabled. MUST be fixed asap
             start = time.time()
-            x = random.randint(1,11)
-            if x == 1 or x == 8:
+            x = random.randint(1,8)
+            if x == 1 or x == 7:
                 if show:
                     print("Change weight")
                 self.mutate_weight()
-            elif x == 2 or x == 9:
+            elif x == 2:
                 if show:
                     print("enable node")
                 self.mutate_enable()
                 self.calculate_children()
-            elif x == 3 or x == 4:
+            elif x == 3:
                 if show:
                     print("disable node")
                 self.mutate_disable()
@@ -374,11 +381,11 @@ class brain():
                     print("add node")
                 self.mutate_add_node(show)
                 self.calculate_children()
-            elif x == 6 or x == 7:
+            elif x == 6:
                 if show:
                     print("Change Bias")
                 self.mutate_change_bias()
-            else:
+            else: #cloning 2
                 pass
             end = time.time()
             if end - start > 1:
@@ -422,12 +429,10 @@ class brain():
     def mutate_add_axon(self,show):
 
         _in_choices = self.nodes[:]
-        _in_choices.remove(_in_choices[4])
-        #_in_choices = self.nodes.remove(self.nodes[4])
+        _in_choices.remove(_in_choices[4]) #not the output
 
-        _out_choices = self.nodes[4:]
-        #for i in _out_choices:
-            #print(i._id)
+        _out_choices = self.nodes[4:] #not the input
+
 
         random.shuffle(_in_choices)
         random.shuffle(_out_choices)
@@ -437,9 +442,9 @@ class brain():
         done = False
         for i in _in_choices:
             for j in _out_choices:
-                #print(i._id,j._id)
-                self.add_axon(i._id,j._id,weight,True,self.axon_num)
-                if i._id != j._id and self.check_all_parents(i._id):
+
+                self.add_axon(i._id,j._id,weight,True,self.axon_num) #tempoaraily add the axon
+                if i._id != j._id and self.check_all_parents(i._id): #in choice != out choice, checkall parents
                     ok = True
                     for k in self.axons:
                         if k._in == i._id and j._id == k._out:
@@ -449,13 +454,12 @@ class brain():
                         _out = j._id
                         done = True
                         break
-                else:
-                    del self.axons[-1]
+                    else:
+                        del self.axons[-1]
             if done:
                 break
                     
         if _in != None:
-            weight = random.randint(-100,100)/100
             self.add_axon(_in,_out,weight,True,self.axon_num)
             if show:
                 print("Added axon with nodes",i._id,"to",j._id)
@@ -516,7 +520,7 @@ class brain():
                     q =self.check_all_parents(i._id)
                     if not q:
                         check = False"""
-                q =self.check_all_parents(self.node_num)
+                q = self.check_all_parents(self.node_num)
                 if not q:
                     check = False                
                 if check:
@@ -803,7 +807,7 @@ class pipe():
     def __init__(self,x,randomness = True):
         self.y = 300
         self.x = x
-        self.gap = 201
+        self.gap = 200
         self.random_numbers = [151,451,341,123,145,341,311,412,231,314]
         self.randomness = randomness
         self.timer = 0
@@ -826,7 +830,7 @@ class pipe():
         c.move(self.pipeimage,self.x,self.y)
         c.move(self.pipeimage2,self.x,self.y)
 
-        if self.x < -50:
+        if self.x < -50:#-50
             c.move(self.pipeimage,-self.x,-self.y)
             c.move(self.pipeimage2,-self.x,-self.y)
             self.x = 1300
@@ -1146,9 +1150,13 @@ def playgame(root,c,size,mutation,population = None):
             if i.x == closest_pipe:
                 top_pipe = i.gapstart
                 bottom_pipe = i.gapstart + i.gap
+            else:
+                top_pipe_further = i.gapstart
+                bottom_pipe_further = i.gapstart + i.gap                
 
         for i in population: #i changed this to real normalised input
-            i.get_inputs(i.play.y/720,( closest_pipe - i.play.x)/600,top_pipe/360,bottom_pipe/360)
+            #i.get_inputs(i.play.y/720,( closest_pipe - i.play.x)/600,top_pipe/360,bottom_pipe/360)
+            i.get_inputs(i.play.y/720,( closest_pipe - i.play.x)/600,(top_pipe+bottom_pipe/2)/720,(top_pipe_further+bottom_pipe_further/2)/720) #changed inputs
             
         #brain1.get_inputs(play.y/100,( closest_pipe - play.x)/10,top_pipe/100,bottom_pipe/100) #origianl stuff
         for i in population:
