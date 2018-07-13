@@ -3,8 +3,12 @@ import time
 import random
 import table_scroll
 import statistics
-import copy
-#make border work
+
+
+# fix child node function not being called
+#fix axon mutation
+#add quick gens
+#add alap gens
 
 root = tk.Tk()
 root.attributes("-fullscreen", True)
@@ -171,20 +175,63 @@ class Generations(tk.Frame):
 
         photo = tk.PhotoImage("")
 
+
+
         self.b = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "red",height = 50,width = 50,
         activebackground = 'firebrick3',font=("Helvetica", 15),text="X",compound= tk.CENTER)
         ###DONT CALL FUNCTION EVEYR TIME GET A VARIABVEL
         self.b.place(x =root.winfo_screenwidth()-55,y = 0)
         tempory = []
+
+
         population = population[:int(len(population)/2)]
+
+
+
+
+
+        
         runs = len(population)
-        for i in range(runs):#len(population)
-            newobj = copy.copy(population[i])
-            newobj.mutate(False)
-            tempory.append(newobj)
+        #for i in range(runs):#len(population)
+            #newobj = copy.copy(population[i])
+            #newobj.mutate(False)
+            #tempory.append(newobj)
             #population.mutate(False)
+        tempory = []
+        ####################################################
+        for i in population[0].axons:
+            print("in",i._in,"out",i._out,"weight",i._weight,"status",i._status,"id",i._id)
+
+        for i in population[0].nodes: #child node function
+            print("type",i._type,"id",i._id,"value",i._value,"action",i._action,"child",i._child_nodes,"total parent",i._total_parent_nodes,"evaulated",i._evaluated)
+        
+
+            
+        for i in range(runs):
+            """for j in population[i].nodes: #in memory of this stupid bug
+                print(id(j))"""
+            
+            tempory.append(brain(c))
+            #self,nodes,axons,axon_num,node_num,activation_bias,color,c
+            #TELEPORT
+            tempory[i].load_genome(population[i].nodes,population[i].axons,population[i].axon_num,population[i].node_num,population[i].activation_bias,population[i].color,c)
+
+            """for k in tempory[i].nodes:
+                print(id(k))"""
+
+            tempory[i].calculate_children()
+
+            
+       
+            
+        #########################################
         for i in tempory:
+            i.mutate(False)
             population.append(i)
+
+
+
+            
         """
         newpopulation = population[:]
         for i in newpopulation:   
@@ -200,7 +247,6 @@ class Generations(tk.Frame):
         #self.destroy()
         table_data,mean_calc, population = playgame(root,c,0,0,population = population) ####
         mean = statistics.mean(mean_calc)
-    
 
         
         self.pack(expand="yes",fill="both")
@@ -277,7 +323,7 @@ class brain():
         self.node_num = 6
         self.activation_bias = 0.5
         self.play = player(c)
-
+        self.color = ""
     ##################### tyler - increases the fitness every frame when the game runs
     def update_fitness(self):
         if self.play.alive:
@@ -290,14 +336,7 @@ class brain():
         self.add_node("input",4)
         self.add_node("output",5,_action = "jump")
         ######
-        self.add_node("input",6)
-        self.add_node("input",7)
-        self.add_node("input",8)
         
-        self.add_axon(1,6,(random.randint(-100,100)/100),True,5) #checking for loop
-        self.add_axon(6,7,(random.randint(-100,100)/100),True,6)
-        self.add_axon(7,5,(random.randint(-100,100)/100),True,7)
-        self.add_axon(7,8,(random.randint(-100,100)/100),True,8)
         ######
         self.add_axon(1,5,(random.randint(-100,100)/100),True,1) #_in,_out,_weight,_status,_id 
         self.add_axon(2,5,(random.randint(-100,100)/100),True,2)
@@ -307,10 +346,10 @@ class brain():
         self.color = color
 
     def mutate(self,show):
-        for i in range(3):
+        for i in range(1):
             #axon is currently disabled. MUST be fixed asap
             start = time.time()
-            x = random.randint(1,10)
+            x = random.randint(1,11)
             if x == 1 or x == 8:
                 if show:
                     print("Change weight")
@@ -319,22 +358,28 @@ class brain():
                 if show:
                     print("enable node")
                 self.mutate_enable()
+                self.calculate_children()
             elif x == 3 or x == 4:
                 if show:
                     print("disable node")
                 self.mutate_disable()
+                self.calculate_children()
             elif x == 4:
                 if show:
                     print("Add axon")
                 self.mutate_add_axon(show)
+                self.calculate_children()
             elif x == 5:
                 if show:
                     print("add node")
                 self.mutate_add_node(show)
+                self.calculate_children()
             elif x == 6 or x == 7:
                 if show:
                     print("Change Bias")
                 self.mutate_change_bias()
+            else:
+                pass
             end = time.time()
             if end - start > 1:
                 print(end - start)
@@ -585,8 +630,25 @@ class brain():
     def calculate_children(self):
         for i in self.nodes:
             i.calculate_child_nodes(self.axons)
+
+
+
+    def load_genome(self,nodes,axons,axon_num,node_num,activation_bias,color,c):
+        self.nodes = []
+        for i in nodes:
+            self.nodes.append(node(i._type,i._id,i._action))
+        
+        self.axons = []
+        for i in axons:
+            self.axons.append(axon(i._in,i._out,i._weight,i._status,i._id))
             
-      
+        self.fitness = 0
+        self.axon_num = axon_num
+        self.node_num = node_num
+        self.activation_bias = activation_bias #GETTING CHANGED SOON
+        self.play = player(c)
+        self.color = color
+        self.play.color_change(c,color)
                 
 
 
@@ -604,7 +666,7 @@ class node():
 
     def calculate_child_nodes(self,axons):
         for i in axons:
-            if i._out == self._id:
+            if i._out == self._id and i._status:
                 self._child_nodes.append(i._in)
         #print("Parent,",self._id)
         #print("Children",self._child_nodes)
@@ -668,7 +730,7 @@ class player():
         self.vel = 0
         self.acc = 0
         self.c = c
-        self.playerimage = self.c.create_rectangle(self.x,self.y,self.x+50,self.y+50,fill = "black") #4 corners
+        #self.playerimage = self.c.create_rectangle(self.x,self.y,self.x+50,self.y+50,fill = "black") #4 corners
         self.alive = True
         self.dead = False
         self.control = control
@@ -677,12 +739,14 @@ class player():
         if self.control == "human":
             root.bind("w",lambda event:self.jump())
             self.fitness = 0
+            self.playerimage = self.c.create_rectangle(self.x,self.y,self.x+50,self.y+50,fill = "black") #4 corners
 
         self.cooldown = 0
 
     ################# tyler - allows the color of the bird to change
-    def color_change(self,canvas,color):
-        canvas.itemconfig(self.playerimage, fill=color)
+    def color_change(self,c,color):
+        self.playerimage = self.c.create_rectangle(self.x,self.y,self.x+50,self.y+50,fill = "black") #4 corners
+        c.itemconfig(self.playerimage, fill=color)
         self.color = color
         #print(self.color)
     ###############
@@ -703,7 +767,6 @@ class player():
 
             if self.vel < -6:
                 self.vel = -6
-                
             self.c.move(self.playerimage,self.x,self.y)
 
             
@@ -745,9 +808,9 @@ class pipe():
         self.randomness = randomness
         self.timer = 0
         if self.randomness:
-            self.gapstart = self.random_numbers[self.timer]
+            #self.gapstart = self.random_numbers[self.timer]
             self.timer += 1
-            #self.gapstart = random.randint(100,500)
+            self.gapstart = random.randint(100,500)
         else:
             self.gapstart = 300
 
@@ -770,11 +833,11 @@ class pipe():
             c.move(self.pipeimage,self.x,self.y)
             c.move(self.pipeimage2,self.x,self.y)
             if self.randomness:
-                self.gapstart = self.random_numbers[self.timer]
+                #self.gapstart = self.random_numbers[self.timer]
                 self.timer += 1
                 if self.timer > len(self.random_numbers) - 1:
                     self.timer = 0
-                #self.gapstart = random.randint(100,500)
+                self.gapstart = random.randint(100,500)
             self.pipeimage = c.create_rectangle(self.x,0,self.x+50,self.gapstart,fill = "black")
             self.pipeimage2 = c.create_rectangle(self.x,self.gapstart+self.gap,self.x+50,self.gapstart+self.gap+ 700,fill = "black")
 
@@ -1035,6 +1098,7 @@ def create_population(size,mutation,colors,c):
 
 
 def playgame(root,c,size,mutation,population = None):
+    c.delete("all")
     #root = tk.Tk()
     root = root
     play = player(c,control = "human")
@@ -1044,8 +1108,8 @@ def playgame(root,c,size,mutation,population = None):
     #root.wm_attributes("-topmost", 1)
     c.pack()        
     #play = player(control = "human")
-    pipes = pipe(3000,randomness = True) #800 #controls ranomdness
-    pipes2 = pipe(3600,randomness = True) #1400
+    pipes = pipe(800,randomness = True) #800 #controls ranomdness #3000
+    pipes2 = pipe(1400,randomness = True) #1400 #3600
 
 
 
@@ -1061,12 +1125,15 @@ def playgame(root,c,size,mutation,population = None):
         for i in population:
             i.fitness = 0
             i.play = player(c)
-            i.play.color_change(c,i.color) 
+            i.play.color_change(c,i.color)
+            
     while game: 
         root.update()
+        
         for i in population:
+
             i.play.update()
-            
+                
         play.update() #original stuff
         #######################
         xvals = []
@@ -1112,13 +1179,22 @@ def playgame(root,c,size,mutation,population = None):
                 survived = i.play.alive
                 if survived == True:
                     person_still_going = True
+                else:
+                    templist = []
+                    for j in pipelist:
+                        templist.append(j.x - i.play.x)
+                    if templist[0] < templist[1]: #templist[0] is closer
+                        i.fitness += 7 - abs(i.play.y - (pipelist[0].gapstart + pipelist[0].gap/2))/1000
+                    else:
+                        i.fitness += 7 - abs(i.play.y - (pipelist[1].gapstart + pipelist[1].gap/2))/1000
+
 
         play.alive = play.check(pipelist)
 
         if not person_still_going:
             if not play.alive: 
                 game = False
-        time.sleep(0.01666666666)
+        #time.sleep(0.01666666666)
       
     #root.mainloop()
     count = 0
@@ -1131,7 +1207,7 @@ def playgame(root,c,size,mutation,population = None):
         if count > len(colors)-1:
             count = 0
         #print("Fitness of ",i.color,":",i.fitness)
-        table_data.append([i.play.color,i.fitness])
+        table_data.append([i.play.color,round(i.fitness,3)])
         mean_calc.append(i.fitness)
         count += 1
     print("Fitness of human :",play.fitness)
