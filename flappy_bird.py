@@ -175,13 +175,16 @@ class Generations(tk.Frame):
         activebackground = 'firebrick3',font=("Helvetica", 15),text="X",compound= tk.CENTER)
         ###DONT CALL FUNCTION EVEYR TIME GET A VARIABVEL
         self.b.place(x =root.winfo_screenwidth()-55,y = 0)
-
-        population = population[0:int(len(population)/2)]
-        for i in range(len(population)):
+        tempory = []
+        population = population[:int(len(population)/2)]
+        runs = len(population)
+        for i in range(runs):#len(population)
             newobj = copy.copy(population[i])
             newobj.mutate(False)
-            population.append(newobj)
+            tempory.append(newobj)
             #population.mutate(False)
+        for i in tempory:
+            population.append(i)
         """
         newpopulation = population[:]
         for i in newpopulation:   
@@ -738,9 +741,13 @@ class pipe():
         self.y = 300
         self.x = x
         self.gap = 201
+        self.random_numbers = [151,451,341,123,145,341,311,412,231,314]
         self.randomness = randomness
+        self.timer = 0
         if self.randomness:
-            self.gapstart = random.randint(100,500)
+            self.gapstart = self.random_numbers[self.timer]
+            self.timer += 1
+            #self.gapstart = random.randint(100,500)
         else:
             self.gapstart = 300
 
@@ -763,7 +770,11 @@ class pipe():
             c.move(self.pipeimage,self.x,self.y)
             c.move(self.pipeimage2,self.x,self.y)
             if self.randomness:
-                self.gapstart = random.randint(100,500)
+                self.gapstart = self.random_numbers[self.timer]
+                self.timer += 1
+                if self.timer > len(self.random_numbers) - 1:
+                    self.timer = 0
+                #self.gapstart = random.randint(100,500)
             self.pipeimage = c.create_rectangle(self.x,0,self.x+50,self.gapstart,fill = "black")
             self.pipeimage2 = c.create_rectangle(self.x,self.gapstart+self.gap,self.x+50,self.gapstart+self.gap+ 700,fill = "black")
 
@@ -1033,8 +1044,8 @@ def playgame(root,c,size,mutation,population = None):
     #root.wm_attributes("-topmost", 1)
     c.pack()        
     #play = player(control = "human")
-    pipes = pipe(3000,randomness = False) #800
-    pipes2 = pipe(3600,randomness = False) #1400
+    pipes = pipe(3000,randomness = True) #800 #controls ranomdness
+    pipes2 = pipe(3600,randomness = True) #1400
 
 
 
@@ -1124,6 +1135,7 @@ def playgame(root,c,size,mutation,population = None):
         mean_calc.append(i.fitness)
         count += 1
     print("Fitness of human :",play.fitness)
+
     
     c.delete("all")
     c.pack_forget()
