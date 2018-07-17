@@ -6,6 +6,11 @@ import table_scroll
 root = tk.Tk()
 root.attributes("-fullscreen", True)
 c = tk.Canvas(master = root, width = 1280, height = 720)
+
+
+with open('names.txt', 'r') as f:
+    namelist = [line.strip() for line in f]
+    
 class menu(tk.Frame):
     def __init__(self,main):
         tk.Frame.__init__(self,main,bg="thistle1")
@@ -97,7 +102,7 @@ class Generations(tk.Frame):
         self._max_gen = 0
         population = []
         for i in range(size):
-            population.append(neural_network.brain())
+            population.append(neural_network.brain(random.choice(namelist)))
             layout = [4]
             for j in range(random.randint(1,5)):
                 layout.append(random.randint(1,10))
@@ -108,7 +113,46 @@ class Generations(tk.Frame):
         self.generation_screen(population)
 
     def generation_screen(self,population):
-        population,table_data,mean = game.start(population = population)         
+        population,table_data,mean = game.start(population = population)
+
+
+
+
+        #reproduction stuff below
+        open_spaces = 0
+        for i in population[:int(len(population)/10)]:
+            i.lives = 3
+        for i in population[int(len(population)/4):]:
+            i.lives -= 1
+            if i.lives == 0:
+                open_spaces += 1
+                population.remove(i)
+                
+
+        for i in population:
+            i.fitness = 0
+
+
+        #print(open_spaces)
+        for i in range(open_spaces):
+            #print("created new creature")
+            x = random.randint(1,4)
+            if x == 1: #adds new creature
+                population.append(neural_network.brain(random.choice(namelist)))
+                layout = [4]
+                for j in range(random.randint(1,5)):
+                    layout.append(random.randint(1,10))
+                layout.append(1)
+                    
+                population[-1].new_random_brain(layout)
+            else:#duplicate and mutate
+                
+                x = random.choice(population[:int(len(population)/10)])
+                temp = neural_network.brain(x.color_name)
+                temp.load_genome(x.weights,x.nodes)
+                population.append(temp)
+                
+        
         tk.Frame.__init__(self,self.main,bg="thistle1")
         photo = tk.PhotoImage("")
         self.b = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "red",height = 50,width = 50,
@@ -117,12 +161,13 @@ class Generations(tk.Frame):
         
         self.title = tk.Label(self,text = "Generation: "+str(self._max_gen),font=("Helvetica", 30),bg = "thistle1")
         self.title.place(rely = 0.05,relx= 0.40)
+        self._max_gen += 1
 
         self.history_button = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "dark violet",height = 100,width = 360,
         activebackground = 'dark violet',font=("Helvetica", 25),text="History",compound= tk.CENTER)
         self.history_button.place(x = 270,y = 200)
         
-        self.multi_step_button = tk.Button(self,  image = photo,command = lambda root=root:self.advance_generation(c,root,population,main),bg = "dark violet",height = 100,width = 360,
+        self.multi_step_button = tk.Button(self,  image = photo,command = lambda:self.generation_screen(population),bg = "dark violet",height = 100,width = 360,
         activebackground = 'dark violet',font=("Helvetica", 25),text="Multi-Step Generation",compound= tk.CENTER)
         self.multi_step_button.place(x = 60,y = 400)
         
@@ -155,9 +200,9 @@ class Generations(tk.Frame):
         
         root.mainloop()
 
-        #reproduction stuff below
-        
-
+            
+            
+            
         
     def leave(self,root):
         root.destroy()

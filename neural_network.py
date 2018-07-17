@@ -3,8 +3,9 @@ import matrices
 import random
 
 class brain():
-    def __init__(self):
+    def __init__(self,name):
         self.color = '#%02x%02x%02x' % (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+        self.color_name = name
         self.fitness = 0
         self.lives = 3
         self.weights = [] #this will be a 3d array. Each synapse will be a different array inside this array
@@ -19,6 +20,16 @@ class brain():
         elif x == 2:
             pass
             #mutate nodes
+
+    def load_genome(self,weights,nodes):
+        self.weights = weights
+        self.nodes = []
+        for i in range(len(nodes)):
+            temp = []
+            for j in range(len(nodes[i])):
+                temp.append(node(activation = nodes[i][j].activation))
+            self.nodes.append(temp)
+
         
 
     def calculate_action(self,input_matrix):  #this should be a function which returns the resulting matrix after being passed
@@ -71,13 +82,15 @@ class brain():
                 print(j.activation)"""
                                             
 class node():
-    def __init__(self):
-        self.activation = random.randint(-1000,1000)/1000
+    def __init__(self,activation = random.randint(-1000,1000)/1000):
+        self.activation = activation
         
     def activate(self,_input):
         if _input > self.activation:
             return 1
         return 0
+    
+
 
 
 if __name__ == "main":

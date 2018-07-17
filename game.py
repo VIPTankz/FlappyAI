@@ -54,7 +54,7 @@ def start(population = "human"):
         def __init__(self,c,x):
             self.x = x
             self.y = 0
-            self.gapstart = 200
+            self.gapstart = random.randint(200,500)
             self.gap = 200
             self.c = c
             self.lengthbot = 720 - self.gapstart - self.gap
@@ -159,7 +159,7 @@ def start(population = "human"):
         table_data = []
         mean_calc = 0
         for i in population:
-            table_data.append([i.color,i.fitness])
+            table_data.append([i.color_name,i.fitness])
             mean_calc += i.fitness
             """if count > len(colors)-1:
                 count = 0
