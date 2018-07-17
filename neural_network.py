@@ -4,6 +4,9 @@ import random
 
 class brain():
     def __init__(self):
+        self.color = '#%02x%02x%02x' % (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+        self.fitness = 0
+        self.lives = 3
         self.weights = [] #this will be a 3d array. Each synapse will be a different array inside this array
         self.nodes = [] #this will also be a 2d array. Each layer will be a different array inside this array
                         # in here the activation for each of the nodes will be stored
@@ -32,7 +35,7 @@ class brain():
             for j in range(len(self.nodes[i])):
                 self.nodes[i][j].activate(input_matrix[0][j]) #the nodes that run the activation are the output of this
                                                             #of this specific operation. 
-        print(input_matrix)
+        #print(input_matrix)
 
         response = []
         for i in range(len(self.nodes[-1])):

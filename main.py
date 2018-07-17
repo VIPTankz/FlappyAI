@@ -2,6 +2,7 @@ import tkinter as tk
 import game
 import random
 import neural_network
+import table_scroll
 root = tk.Tk()
 root.attributes("-fullscreen", True)
 c = tk.Canvas(master = root, width = 1280, height = 720)
@@ -93,20 +94,73 @@ class Generations(tk.Frame):
     def __init__(self,main,size,mutation,Generations=0):
         #tk.Frame.__init__(self,main,bg="thistle1")
         self.main = main
+        self._max_gen = 0
         population = []
         for i in range(size):
             population.append(neural_network.brain())
             layout = [4]
-            for i in range(random.randint(1,5)):
-                population.append(random.randint(1,10))
-            population[i].new_random_brain([4,3,3,1])
+            for j in range(random.randint(1,5)):
+                layout.append(random.randint(1,10))
+            layout.append(1)
+                
+            population[i].new_random_brain(layout)
+
+        self.generation_screen(population)
+
+    def generation_screen(self,population):
+        population,table_data,mean = game.start(population = population)         
+        tk.Frame.__init__(self,self.main,bg="thistle1")
+        photo = tk.PhotoImage("")
+        self.b = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "red",height = 50,width = 50,
+        activebackground = 'firebrick3',font=("Helvetica", 15),text="X",compound= tk.CENTER)
+        self.b.place(x =root.winfo_screenwidth()-55,y = 0)
+        
+        self.title = tk.Label(self,text = "Generation: "+str(self._max_gen),font=("Helvetica", 30),bg = "thistle1")
+        self.title.place(rely = 0.05,relx= 0.40)
+
+        self.history_button = tk.Button(self,  image = photo,command = lambda root=root:self.leave(root),bg = "dark violet",height = 100,width = 360,
+        activebackground = 'dark violet',font=("Helvetica", 25),text="History",compound= tk.CENTER)
+        self.history_button.place(x = 270,y = 200)
+        
+        self.multi_step_button = tk.Button(self,  image = photo,command = lambda root=root:self.advance_generation(c,root,population,main),bg = "dark violet",height = 100,width = 360,
+        activebackground = 'dark violet',font=("Helvetica", 25),text="Multi-Step Generation",compound= tk.CENTER)
+        self.multi_step_button.place(x = 60,y = 400)
+        
+        self.quick_generation_button = tk.Button(self,  image = photo,command = lambda root=root:self.advance_generation(c,root,population,main,quick_gen = True),bg = "dark violet",height = 100,width = 360,
+        activebackground = 'dark violet',font=("Helvetica", 25),text="Quick Generation",compound= tk.CENTER)
+        self.quick_generation_button.place(x = 480,y = 400)
+        
+        self.auto_generation = tk.Button(self,  image = photo,command = lambda root=root:self.advance_generation_multiple(c,root,population,main,quick_gen = True),bg = "dark violet",height = 100,width = 360,
+        activebackground = 'dark violet',font=("Helvetica", 25),text="Auto generation",compound= tk.CENTER)
+        self.auto_generation.place(x = 270,y = 560)
 
 
 
+        height = ((len(table_data)*34)+44+15)
+        if height > 550:
+            height = 550
+        
+        self.Border = tk.Label(self,image = photo,bg="black",width= 300+35,height=height)
+        self.Border.place(y=140,x=890)
+        
+        self.table = table_scroll.Table(root, ["Name", "Fitness"], column_minwidths=[150, 150],height = 500)
+        self.table.place(y=150,x=900)
+        #array = [[13,13],[123,31]]
+        self.table.set_data(table_data)        
 
+        self.mean_label = tk.Label(self,text = "Mean Fitness: "+str(round(mean,2)),font=("Helvetica", 14),image = photo,width = 300,height = 100,compound= tk.CENTER,bg="thistle1")#,bg="thistle1"
+        self.mean_label.place(y=20,x=900)     
 
+        self.pack(expand="yes",fill="both")
+        
+        root.mainloop()
 
+        #reproduction stuff below
+        
 
+        
+    def leave(self,root):
+        root.destroy()
 
 
 
@@ -114,7 +168,6 @@ class Generations(tk.Frame):
 
 
 menu = menu(root)
-
 
 
 
