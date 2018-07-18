@@ -115,9 +115,6 @@ class Generations(tk.Frame):
     def generation_screen(self,population):
         population,table_data,mean = game.start(population = population)
 
-
-
-
         #reproduction stuff below
         open_spaces = 0
         for i in population[:int(len(population)/10)]:
@@ -150,6 +147,7 @@ class Generations(tk.Frame):
                 x = random.choice(population[:int(len(population)/10)])
                 temp = neural_network.brain(x.color_name)
                 temp.load_genome(x.weights,x.nodes)
+                temp.mutate()
                 population.append(temp)
                 
         
@@ -179,7 +177,7 @@ class Generations(tk.Frame):
         activebackground = 'dark violet',font=("Helvetica", 25),text="Auto generation",compound= tk.CENTER)
         self.auto_generation.place(x = 270,y = 560)
 
-
+        table_data = table_data[:int(len(table_data)/10)] + table_data[int(len(table_data)*9/10):]
 
         height = ((len(table_data)*34)+44+15)
         if height > 550:

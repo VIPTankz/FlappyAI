@@ -15,10 +15,15 @@ class brain():
     def mutate(self):
         x = random.randint(1,2)
         if x == 1:
-            pass
+            layer  = random.randint(0,len(self.weights)-1)
+            node = random.randint(0,len(self.weights[layer])-1)
+            axon =  random.randint(0,len(self.weights[layer][node])-1)
+            self.weights[layer][node][axon] += random.randint(-1000,1000)/1000
             #mutate weights
         elif x == 2:
-            pass
+            layer = random.randint(0,len(self.nodes)-1)
+            node = random.randint(0,layer)
+            self.nodes[layer][node].activation += random.randint(-1000,1000)/1000
             #mutate nodes
 
     def load_genome(self,weights,nodes):
@@ -67,7 +72,8 @@ class brain():
                     temp2.append(random.randint(-1000,1000)/1000)
                 temp1.append(temp2)
             self.weights.append(temp1)
-        #print(self.weights)
+        
+        
 
 
         for i in range(len(brain_layout)-1):
@@ -75,7 +81,7 @@ class brain():
             for j in range(brain_layout[i+1]):
                 temp.append(node())
             self.nodes.append(temp)
-            
+           
         """for i in range(len(self.nodes)):
             #print("new layer")
             for j in self.nodes[i]:
